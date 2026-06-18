@@ -1,0 +1,2 @@
+# Mantem a pasta lib/ no Git mesmo vazia.
+# Os .jar aqui sao baixados pelo Maven (1-baixar-dependencias.bat) e ignorados pelo Git.

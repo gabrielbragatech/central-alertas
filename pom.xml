@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <!--
+    ATENCAO: neste projeto o Maven serve SO para baixar dependencias (os .jar).
+    Quem compila e roda o codigo e o javac/java na mao (veja os scripts .bat).
+    Por isso nao ha plugin de compilacao/execucao aqui: nada de "mvn compile".
+    O comando que importa e:  mvnw dependency:copy-dependencies
+    Ele resolve a arvore de dependencias e COPIA todos os .jar para a pasta lib/.
+  -->
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.centralalertas</groupId>
+  <artifactId>central-alertas</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+  <name>Central de Alertas e Saude Financeira</name>
+
+  <properties>
+    <!-- Versao da linguagem/JDK alvo (temos o Java 21 instalado). -->
+    <maven.compiler.release>21</maven.compiler.release>
+    <!-- Garante UTF-8 em todo o build, evitando problemas com acentuacao. -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <!--
+      Driver JDBC do MySQL. E a classe que o DriverManager usa para conversar
+      com o banco central_alertas (XAMPP). E a dependencia usada pela classe Conexao.
+    -->
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>9.1.0</version>
+    </dependency>
+
+    <!--
+      Jakarta Mail (envio de e-mail). Declaramos APENAS a implementacao Angus;
+      por dependencia TRANSITIVA ela ja traz jakarta.mail-api, jakarta.activation-api
+      e angus-activation. E justamente por essa resolucao automatica que vale usar
+      o Maven aqui (baixar tudo a mao, um a um, seria trabalhoso e facil de errar).
+      O EmailService usa essa lib para enviar os e-mails de cobranca.
+    -->
+    <dependency>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>angus-mail</artifactId>
+      <version>2.0.3</version>
+    </dependency>
+
+    <!--
+      Gson (Google): converte objetos Java <-> JSON. Usada pelos handlers HTTP para
+      ler o corpo das requisicoes e escrever as respostas. Nao tem dependencias
+      transitivas (vem so o gson-2.11.0.jar).
+    -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.11.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!--
+        maven-dependency-plugin: com o goal "copy-dependencies" ele copia todos os
+        .jar resolvidos para a pasta de saida configurada (lib/). Assim o javac/java
+        encontram os jars via classpath "lib/*", sem o Maven precisar compilar nada.
+        includeScope=runtime -> pega o que e necessario para RODAR (ignora test).
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <outputDirectory>${project.basedir}/lib</outputDirectory>
+          <includeScope>runtime</includeScope>
+          <!-- Nao versiona o nome do arquivo (mantem o nome original do jar). -->
+          <stripVersion>false</stripVersion>
+          <!-- Sobrescreve jars antigos em lib/ se a versao mudar. -->
+          <overWriteReleases>true</overWriteReleases>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

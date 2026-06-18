@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central de Alertas — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topo">
+    <h1>Central de Alertas</h1>
+    <p class="subtitulo">Saude financeira e cobranca de faturas</p>
+  </header>
+
+  <main class="container">
+
+    <!-- Faixa de mensagens (erros, sucesso, resultado do disparo). Escondida por padrao. -->
+    <div id="mensagem" class="mensagem oculto" role="status"></div>
+
+    <!-- Painel Saude Financeira: 4 cartoes preenchidos pelo JS -->
+    <section>
+      <h2 class="secao-titulo">Saude Financeira</h2>
+      <div class="cartoes">
+        <div class="cartao">
+          <span class="cartao-rotulo">Total a receber</span>
+          <span class="cartao-valor" id="cardAReceber">—</span>
+        </div>
+        <div class="cartao cartao-perigo">
+          <span class="cartao-rotulo">Total atrasado</span>
+          <span class="cartao-valor" id="cardAtrasado">—</span>
+        </div>
+        <div class="cartao">
+          <span class="cartao-rotulo">Faturas pendentes</span>
+          <span class="cartao-valor" id="cardPendentes">—</span>
+        </div>
+        <div class="cartao cartao-perigo">
+          <span class="cartao-rotulo">Faturas atrasadas</span>
+          <span class="cartao-valor" id="cardAtrasadas">—</span>
+        </div>
+      </div>
+      <button id="btnDisparar" class="botao botao-destaque">Disparar Cobranca Agora</button>
+    </section>
+
+    <!-- Formularios de cadastro/edicao -->
+    <section class="formularios">
+      <!-- O mesmo form serve para CRIAR e EDITAR cliente (o JS alterna o modo). -->
+      <form id="formCliente" class="cartao-form">
+        <h2 class="secao-titulo" id="tituloFormCliente">Novo cliente</h2>
+        <label>Nome
+          <input type="text" name="nome" required />
+        </label>
+        <label>E-mail
+          <input type="email" name="email" required />
+        </label>
+        <label>Telefone
+          <input type="text" name="telefone" placeholder="(opcional)" />
+        </label>
+        <div class="form-acoes">
+          <button type="submit" class="botao" id="btnSubmitCliente">Cadastrar cliente</button>
+          <button type="button" class="botao botao-secundario oculto" id="btnCancelarCliente">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- O mesmo form serve para CRIAR e EDITAR fatura. -->
+      <form id="formFatura" class="cartao-form">
+        <h2 class="secao-titulo" id="tituloFormFatura">Nova fatura</h2>
+        <label>Cliente
+          <select name="clienteId" id="selectCliente" required>
+            <option value="">Carregando...</option>
+          </select>
+        </label>
+        <label>Descricao
+          <input type="text" name="descricao" placeholder="(opcional)" />
+        </label>
+        <label>Valor (R$)
+          <input type="number" name="valor" step="0.01" min="0" required />
+        </label>
+        <label>Vencimento
+          <input type="date" name="dataVencimento" required />
+        </label>
+        <label>Status
+          <select name="status">
+            <option value="PENDENTE">PENDENTE</option>
+            <option value="PAGA">PAGA</option>
+            <option value="ATRASADA">ATRASADA</option>
+          </select>
+        </label>
+        <div class="form-acoes">
+          <button type="submit" class="botao" id="btnSubmitFatura">Cadastrar fatura</button>
+          <button type="button" class="botao botao-secundario oculto" id="btnCancelarFatura">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Tabela de clientes -->
+    <section>
+      <h2 class="secao-titulo">Clientes</h2>
+
+      <!-- Toolbar: busca + ordenacao (fica FIXA; so o <tbody> e redesenhado). -->
+      <div class="toolbar">
+        <input type="search" id="buscaClientes" class="busca" placeholder="Buscar por nome ou e-mail..." />
+        <select id="ordenarClientes">
+          <option value="nome-asc">Nome (A–Z)</option>
+          <option value="nome-desc">Nome (Z–A)</option>
+          <option value="recentes">Mais recentes</option>
+          <option value="antigos">Mais antigos</option>
+        </select>
+      </div>
+
+      <!-- Barra de acoes em lote (aparece quando ha selecionados). -->
+      <div id="barraClientes" class="barra-lote oculto">
+        <span id="contadorClientes"></span>
+        <button id="excluirSelClientes" class="botao botao-perigo botao-pequeno">Excluir selecionados</button>
+      </div>
+
+      <div class="tabela-wrapper">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" id="selAllClientes" title="Selecionar todos" /></th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaClientes">
+            <tr><td colspan="5" class="vazio">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tabela de faturas -->
+    <section id="secaoFaturas">
+      <h2 class="secao-titulo">Faturas</h2>
+
+      <!-- Toolbar: busca + filtro de status + ordenacao. -->
+      <div class="toolbar">
+        <input type="search" id="buscaFaturas" class="busca" placeholder="Buscar por cliente ou descricao..." />
+        <select id="filtroStatusFaturas">
+          <option value="TODAS">Todas</option>
+          <option value="PENDENTE">Pendentes</option>
+          <option value="ATRASADA">Atrasadas</option>
+          <option value="PAGA">Pagas</option>
+        </select>
+        <select id="ordenarFaturas">
+          <option value="vencimento-asc">Vencimento (mais proximo)</option>
+          <option value="vencimento-desc">Vencimento (mais distante)</option>
+          <option value="valor-desc">Valor (maior)</option>
+          <option value="valor-asc">Valor (menor)</option>
+          <option value="cliente-asc">Cliente (A–Z)</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+
+      <!-- Chip do filtro "Ver faturas de um cliente". -->
+      <div id="chipCliente" class="chip oculto">
+        <span class="chip-texto"></span>
+        <button id="limparChip" class="chip-x" title="Remover filtro">ver todas ✕</button>
+      </div>
+
+      <!-- Barra de acoes em lote. -->
+      <div id="barraFaturas" class="barra-lote oculto">
+        <span id="contadorFaturas"></span>
+        <button id="excluirSelFaturas" class="botao botao-perigo botao-pequeno">Excluir selecionadas</button>
+      </div>
+
+      <div class="tabela-wrapper">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" id="selAllFaturas" title="Selecionar todas" /></th>
+              <th>Cliente</th>
+              <th>Descricao</th>
+              <th>Valor</th>
+              <th>Vencimento</th>
+              <th>Status</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaFaturas">
+            <tr><td colspan="7" class="vazio">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- O JS roda depois do HTML existir (defer garante isso). -->
+  <script src="app.js" defer></script>
+</body>
+</html>

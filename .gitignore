@@ -1,0 +1,18 @@
+# Compilados e arquivos gerados
+/out/
+*.class
+sources.txt
+
+# Dependencias baixadas pelo Maven (regeneraveis com: mvnw dependency:copy-dependencies)
+/lib/*.jar
+
+# Maven baixado pelo wrapper fica em ~/.m2 (fora do repo); target/ caso o Maven gere algo
+/target/
+
+# Config com SENHA: o arquivo real nunca vai pro Git (so o .exemplo vai)
+/config/email.properties
+
+# IDEs / editores
+.idea/
+*.iml
+.vscode/

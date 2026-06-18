@@ -1,0 +1,13 @@
+# MODELO de configuracao de e-mail (este arquivo PODE ir para o Git).
+# Copie para "config/email.properties" e preencha com os SEUS dados.
+# O arquivo real (config/email.properties) esta no .gitignore e NUNCA vai para o GitHub.
+
+# Seu e-mail Gmail (remetente):
+email.remetente=seu-email@gmail.com
+
+# Senha de APP de 16 letras (NAO e a senha normal do Gmail).
+# Gere em: myaccount.google.com -> Seguranca -> Verificacao em duas etapas -> Senhas de app
+email.senha=sua-senha-de-app-de-16-letras
+
+# Nome que aparece como remetente:
+email.remetente.nome=Central de Alertas
