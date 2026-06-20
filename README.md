@@ -1,5 +1,10 @@
 # Central de Alertas e Saúde Financeira
 
+<p align="center">
+  <img src="docs/central-alertas.gif" alt="Demonstração do Sistema" width="100%" style="max-height: 300px; object-fit: cover; border-radius: 8px;">
+</p>
+
+
 Projeto de estudo: um sistema que **automatiza a cobrança de faturas a vencer e atrasadas**.
 Em vez de alguém ficar olhando uma planilha todo dia para ver quem está perto de vencer ou
 já venceu, o sistema faz isso sozinho: todo dia ele checa as faturas, marca as vencidas como
